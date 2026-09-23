@@ -252,7 +252,7 @@ The final submission requires these checks against the **deployed public URL**.
 ### Test 1 — No authentication
 
 ```bash
-curl -i https://YOUR-APP/api/capsules
+curl -i https://ai-capsule-wocy.onrender.com/api/capsules
 ```
 
 Expected result:
@@ -264,7 +264,7 @@ Expected result:
 ### Test 2 — Invalid JWT
 
 ```bash
-curl -i -H "Cookie: token=fake-token-123" https://YOUR-APP/api/capsules
+curl -i -H "Cookie: token=fake-token-123" https://ai-capsule-wocy.onrender.com/api/capsules
 ```
 
 Expected result:
@@ -293,10 +293,10 @@ In production, Express serves both the built React frontend and the API from the
 
 ## Cloud Deployment
 
-- **Platform:** TO COMPLETE AFTER DEPLOYMENT
-- **Public URL:** TO COMPLETE AFTER DEPLOYMENT
-- **OAuth callback URL:** TO COMPLETE AFTER DEPLOYMENT
-- **Storage approach:** TO COMPLETE AFTER DEPLOYMENT
+- **Platform:** Render
+- **Public URL:** https://ai-capsule-wocy.onrender.com/
+- **OAuth callback URL:** http://ai-capsule-wocy.onrender.com/auth/github/callback
+- **Storage approach:** SQLite database stored on the Render service filesystem. Because Render free web services use an ephemeral filesystem, the database may be reset after a restart or redeployment.
 
 The intended deployment uses one public application URL for both the React frontend and Express backend. This keeps the frontend and API on the same origin and simplifies the required JWT cookie configuration.
 
