@@ -362,7 +362,7 @@ The frontend does not send a `user_id` value.
 
 I chose to serve the built React frontend and the Express API from the same deployed application. This will keep the frontend and backend on the same origin, which simplifies the OAuth callback and JWT cookie configuration. It also avoids unnecessary CORS and cross-origin cookie issues.
 
-I chose SQLite because the assignment accepts it as the minimum relational database requirement, and the application only needs a small single-user-owned CRUD data model.
+I chose SQLite because the assignment accepts it as the minimum relational database requirement, and the application only needs a small CRUD data model with per-user record ownership.
 
 ## Known Limitation
 The application currently uses SQLite as its database. This works well for local development and satisfies the assignment requirements, but if the deployed application uses an ephemeral filesystem, the stored data may be lost after a service restart or redeployment.
