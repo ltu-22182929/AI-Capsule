@@ -322,11 +322,19 @@ Only the variable names should be shown in the repository and demonstration vide
 
 ## AI-Assisted Development
 
-AI tools were used to assist with project scaffolding, React components, Express route design, SQLite queries, OAuth/JWT integration, CSS, testing, and debugging.
+I used ChatGPT during development to assist with project scaffolding, React component structure, Express route design, SQLite queries, GitHub OAuth and JWT integration, CSS, testing, and debugging.
+
+ChatGPT was also used to explain the authentication flow, including the purpose of the GitHub OAuth Client ID and Client Secret, the role of the application JWT, the difference between the GitHub access token and the Express-issued JWT, the purpose of JWT_SECRET, and how the protected API retrieves the authenticated user identity from `req.user.sub`.
+
+These explanations were used to help me understand and verify the security flow rather than only relying on generated code.
 
 ### Problem identified and corrected
 
-During development, an issue was identified with the JWT cookie configuration. Setting `secure: true` during local HTTP development prevents the browser from sending the cookie correctly. The implementation was adjusted so that the cookie is not marked Secure during local development, while production enables the Secure flag when `NODE_ENV=production`.
+During development, I identified an issue with the JWT cookie configuration. The cookie was initially configured with `secure: true` for all environments. This caused the authentication cookie to not work correctly during local development because the local application uses HTTP rather than HTTPS.
+
+I corrected the configuration so that the cookie uses `secure: false` during local development and `secure: true` when `NODE_ENV=production`.
+
+This allowed local OAuth and JWT authentication to work correctly while still keeping the production cookie secure.
 
 ### OAuth and JWT verification
 
@@ -352,37 +360,14 @@ The frontend does not send a `user_id` value.
 
 ### Implementation decision
 
-The application is designed so the production Express server serves both the React frontend and the API. This keeps the application on a single origin and reduces unnecessary CORS and cross-origin cookie configuration.
+I chose to serve the built React frontend and the Express API from the same deployed application. This will keep the frontend and backend on the same origin, which simplifies the OAuth callback and JWT cookie configuration. It also avoids unnecessary CORS and cross-origin cookie issues.
+
+I chose SQLite because the assignment accepts it as the minimum relational database requirement, and the application only needs a small single-user-owned CRUD data model.
 
 ## Known Limitation
+The application currently uses SQLite as its database. This works well for local development and satisfies the assignment requirements, but if the deployed application uses an ephemeral filesystem, the stored data may be lost after a service restart or redeployment.
 
-The application uses one simple `capsules` table and does not implement file upload. Screenshot evidence is stored as an optional URL instead. This keeps the application focused on the required authentication, CRUD, and deployment workflow.
+The application also uses one simple `capsules` table and does not implement file upload. Screenshot evidence is stored as an optional URL instead. This keeps the application focused on the required authentication, CRUD, and deployment workflow.
 
 Additional features such as advanced filtering, charts, and file upload were not prioritised because they are not required for the core assignment behaviour.
 
-## Video Demonstration Checklist
-
-The final 3–5 minute video will demonstrate the deployed version of the application.
-
-- Show the public deployed URL
-- Open `/api/health` and show `{ "status": "ok" }`
-- Run the no-authentication cURL test and show `401 Unauthorized`
-- Run the fake JWT cURL test and show `401 Unauthorized`
-- Complete GitHub OAuth login
-- Demonstrate CREATE
-- Demonstrate READ
-- Demonstrate UPDATE
-- Demonstrate DELETE
-- Show cloud environment-variable names without revealing secret values
-- Explain the database/storage approach and one deployment limitation
-
-## Submission Checklist
-
-- [ ] Source-code ZIP includes `package.json`, frontend, backend, and database setup files
-- [ ] `node_modules` is excluded
-- [ ] `.env` and secret values are excluded
-- [ ] Public deployment remains available during marking
-- [ ] Deployment placeholders in this README are completed
-- [ ] Public cURL tests are completed and recorded
-- [ ] 3–5 minute MP4 includes working video and audio
-- [ ] Video shows the deployed app, OAuth login, JWT protection, and complete CRUD
