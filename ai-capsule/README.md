@@ -136,15 +136,15 @@ During development, Vite forwards the application API and authentication routes 
 
 ## Required Routes
 
-| Method | Route | Access | Purpose |
-|---|---|---|---|
-| GET | `/` | Public | Landing page |
-| GET | `/login` | Public | Starts GitHub OAuth login |
-| GET | `/dashboard` | Protected | Displays the authenticated user's records |
-| GET | `/api/health` | Public | Returns `{ "status": "ok" }` |
-| GET | `/api/capsules` | Protected | Reads the authenticated user's records |
-| POST | `/api/capsules` | Protected | Creates a record for the authenticated user |
-| PUT | `/api/capsules/:id` | Protected | Updates a record owned by the authenticated user |
+| Method | Route               | Access    | Purpose                                          |
+| ------ | ------------------- | --------- | ------------------------------------------------ |
+| GET    | `/`                 | Public    | Landing page                                     |
+| GET    | `/login`            | Public    | Starts GitHub OAuth login                        |
+| GET    | `/dashboard`        | Protected | Displays the authenticated user's records        |
+| GET    | `/api/health`       | Public    | Returns `{ "status": "ok" }`                     |
+| GET    | `/api/capsules`     | Protected | Reads the authenticated user's records           |
+| POST   | `/api/capsules`     | Protected | Creates a record for the authenticated user      |
+| PUT    | `/api/capsules/:id` | Protected | Updates a record owned by the authenticated user |
 | DELETE | `/api/capsules/:id` | Protected | Deletes a record owned by the authenticated user |
 
 Additional authentication routes are used for the GitHub OAuth callback and logout process.
@@ -190,7 +190,7 @@ If the token is missing or invalid, the backend returns:
 The frontend does not provide `user_id` when creating or changing records. Instead, the backend gets the authenticated user ID from:
 
 ```js
-req.user.sub
+req.user.sub;
 ```
 
 This prevents a user from changing their browser request to access another user's records.
@@ -330,11 +330,19 @@ These explanations were used to help me understand and verify the security flow 
 
 ### Problem identified and corrected
 
+### Problem 1: JWT Cookie Configuration
+
 During development, I identified an issue with the JWT cookie configuration. The cookie was initially configured with `secure: true` for all environments. This caused the authentication cookie to not work correctly during local development because the local application uses HTTP rather than HTTPS.
 
-I corrected the configuration so that the cookie uses `secure: false` during local development and `secure: true` when `NODE_ENV=production`.
+I corrected the configuration so that the cookie uses `secure: false` during local development and `secure: true` when `NODE_ENV=production`. This allowed local OAuth and JWT authentication to work correctly while still keeping the production cookie secure.
 
-This allowed local OAuth and JWT authentication to work correctly while still keeping the production cookie secure.
+### Problem 2: GitHub Avatar Blocked by Content Security Policy
+
+After deploying the application to Render, the GitHub profile avatar was not displayed even though the `/api/me` endpoint returned the correct `avatar_url`.
+
+The issue was caused by Helmet's Content Security Policy in production. The default policy blocked images loaded from `https://avatars.githubusercontent.com`, while the same avatar worked locally because CSP was disabled during development.
+
+I corrected the Helmet configuration by explicitly allowing GitHub avatar images in the `img-src` directive. After redeploying the application, the avatar displayed correctly while the Content Security Policy remained enabled.
 
 ### OAuth and JWT verification
 
@@ -365,9 +373,9 @@ I chose to serve the built React frontend and the Express API from the same depl
 I chose SQLite because the assignment accepts it as the minimum relational database requirement, and the application only needs a small CRUD data model with per-user record ownership.
 
 ## Known Limitation
+
 The application currently uses SQLite as its database. This works well for local development and satisfies the assignment requirements, but if the deployed application uses an ephemeral filesystem, the stored data may be lost after a service restart or redeployment.
 
 The application also uses one simple `capsules` table and does not implement file upload. Screenshot evidence is stored as an optional URL instead. This keeps the application focused on the required authentication, CRUD, and deployment workflow.
 
 Additional features such as advanced filtering, charts, and file upload were not prioritised because they are not required for the core assignment behaviour.
-

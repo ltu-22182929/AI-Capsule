@@ -10,9 +10,14 @@ const app = express();
 app.disable("x-powered-by");
 app.use(
   helmet({
-    contentSecurityPolicy: process.env.NODE_ENV === "production" ? undefined : false,
+    contentSecurityPolicy: {
+      directives: {
+        imgSrc: ["'self'", "data:", "https://avatars.githubusercontent.com"],
+      },
+    },
   }),
 );
+
 app.use(express.json({ limit: "200kb" }));
 app.use(cookieParser());
 
